@@ -297,6 +297,8 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     }
     ```
 
+***
+
 ## Laboratorio - Explorando la funcionalidad de estado de Terraform
 
 ### Comprobar el estado de Terraform y Minikube
@@ -328,9 +330,10 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 1. Cambiar al directorio donde se encuentra el código
 
     ```shell
-    $ cd lab_code/
-    $ cd section2-hol1/
+    cd lab_code/
+    cd section2-hol1/
     ```
+
 2. Revisar el código
 
     ```shell
@@ -399,397 +402,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     Resource actions are indicated with the following symbols:
     + create
 
-    Terraform will perform the following actions:
-
-    # kubernetes_deployment.tf-k8s-deployment will be created
-    + resource "kubernetes_deployment" "tf-k8s-deployment" {
-        + id               = (known after apply)
-        + wait_for_rollout = true
-
-        + metadata {
-            + generation       = (known after apply)
-            + labels           = {
-                + "name" = "terraform-k8s-deployment"
-                }
-            + name             = "tf-k8s-deploy"
-            + namespace        = "default"
-            + resource_version = (known after apply)
-            + uid              = (known after apply)
-            }
-
-        + spec {
-            + min_ready_seconds         = 0
-            + paused                    = false
-            + progress_deadline_seconds = 600
-            + replicas                  = "2"
-            + revision_history_limit    = 10
-
-            + selector {
-                + match_labels = {
-                    + "name" = "terraform-k8s-deployment"
-                    }
-                }
-
-            + strategy {
-                + type = (known after apply)
-
-                + rolling_update {
-                    + max_surge       = (known after apply)
-                    + max_unavailable = (known after apply)
-                    }
-                }
-
-            + template {
-                + metadata {
-                    + generation       = (known after apply)
-                    + labels           = {
-                        + "name" = "terraform-k8s-deployment"
-                        }
-                    + name             = (known after apply)
-                    + resource_version = (known after apply)
-                    + uid              = (known after apply)
-                    }
-
-                + spec {
-                    + automount_service_account_token  = true
-                    + dns_policy                       = "ClusterFirst"
-                    + enable_service_links             = true
-                    + host_ipc                         = false
-                    + host_network                     = false
-                    + host_pid                         = false
-                    + hostname                         = (known after apply)
-                    + node_name                        = (known after apply)
-                    + restart_policy                   = "Always"
-                    + service_account_name             = (known after apply)
-                    + share_process_namespace          = false
-                    + termination_grace_period_seconds = 30
-
-                    + container {
-                        + image                      = "nginx"
-                        + image_pull_policy          = (known after apply)
-                        + name                       = "nginx"
-                        + stdin                      = false
-                        + stdin_once                 = false
-                        + termination_message_path   = "/dev/termination-log"
-                        + termination_message_policy = (known after apply)
-                        + tty                        = false
-
-                        + resources {
-                            + limits   = (known after apply)
-                            + requests = (known after apply)
-                            }
-                        }
-
-                    + image_pull_secrets {
-                        + name = (known after apply)
-                        }
-
-                    + readiness_gate {
-                        + condition_type = (known after apply)
-                        }
-
-                    + volume {
-                        + name = (known after apply)
-
-                        + aws_elastic_block_store {
-                            + fs_type   = (known after apply)
-                            + partition = (known after apply)
-                            + read_only = (known after apply)
-                            + volume_id = (known after apply)
-                            }
-
-                        + azure_disk {
-                            + caching_mode  = (known after apply)
-                            + data_disk_uri = (known after apply)
-                            + disk_name     = (known after apply)
-                            + fs_type       = (known after apply)
-                            + kind          = (known after apply)
-                            + read_only     = (known after apply)
-                            }
-
-                        + azure_file {
-                            + read_only        = (known after apply)
-                            + secret_name      = (known after apply)
-                            + secret_namespace = (known after apply)
-                            + share_name       = (known after apply)
-                            }
-
-                        + ceph_fs {
-                            + monitors    = (known after apply)
-                            + path        = (known after apply)
-                            + read_only   = (known after apply)
-                            + secret_file = (known after apply)
-                            + user        = (known after apply)
-
-                            + secret_ref {
-                                + name      = (known after apply)
-                                + namespace = (known after apply)
-                                }
-                            }
-
-                        + cinder {
-                            + fs_type   = (known after apply)
-                            + read_only = (known after apply)
-                            + volume_id = (known after apply)
-                            }
-
-                        + config_map {
-                            + default_mode = (known after apply)
-                            + name         = (known after apply)
-                            + optional     = (known after apply)
-
-                            + items {
-                                + key  = (known after apply)
-                                + mode = (known after apply)
-                                + path = (known after apply)
-                                }
-                            }
-
-                        + csi {
-                            + driver            = (known after apply)
-                            + fs_type           = (known after apply)
-                            + read_only         = (known after apply)
-                            + volume_attributes = (known after apply)
-
-                            + node_publish_secret_ref {
-                                + name = (known after apply)
-                                }
-                            }
-
-                        + downward_api {
-                            + default_mode = (known after apply)
-
-                            + items {
-                                + mode = (known after apply)
-                                + path = (known after apply)
-
-                                + field_ref {
-                                    + api_version = (known after apply)
-                                    + field_path  = (known after apply)
-                                    }
-
-                                + resource_field_ref {
-                                    + container_name = (known after apply)
-                                    + divisor        = (known after apply)
-                                    + resource       = (known after apply)
-                                    }
-                                }
-                            }
-
-                        + empty_dir {
-                            + medium     = (known after apply)
-                            + size_limit = (known after apply)
-                            }
-
-                        + fc {
-                            + fs_type      = (known after apply)
-                            + lun          = (known after apply)
-                            + read_only    = (known after apply)
-                            + target_ww_ns = (known after apply)
-                            }
-
-                        + flex_volume {
-                            + driver    = (known after apply)
-                            + fs_type   = (known after apply)
-                            + options   = (known after apply)
-                            + read_only = (known after apply)
-
-                            + secret_ref {
-                                + name      = (known after apply)
-                                + namespace = (known after apply)
-                                }
-                            }
-
-                        + flocker {
-                            + dataset_name = (known after apply)
-                            + dataset_uuid = (known after apply)
-                            }
-
-                        + gce_persistent_disk {
-                            + fs_type   = (known after apply)
-                            + partition = (known after apply)
-                            + pd_name   = (known after apply)
-                            + read_only = (known after apply)
-                            }
-
-                        + git_repo {
-                            + directory  = (known after apply)
-                            + repository = (known after apply)
-                            + revision   = (known after apply)
-                            }
-
-                        + glusterfs {
-                            + endpoints_name = (known after apply)
-                            + path           = (known after apply)
-                            + read_only      = (known after apply)
-                            }
-
-                        + host_path {
-                            + path = (known after apply)
-                            + type = (known after apply)
-                            }
-
-                        + iscsi {
-                            + fs_type         = (known after apply)
-                            + iqn             = (known after apply)
-                            + iscsi_interface = (known after apply)
-                            + lun             = (known after apply)
-                            + read_only       = (known after apply)
-                            + target_portal   = (known after apply)
-                            }
-
-                        + local {
-                            + path = (known after apply)
-                            }
-
-                        + nfs {
-                            + path      = (known after apply)
-                            + read_only = (known after apply)
-                            + server    = (known after apply)
-                            }
-
-                        + persistent_volume_claim {
-                            + claim_name = (known after apply)
-                            + read_only  = (known after apply)
-                            }
-
-                        + photon_persistent_disk {
-                            + fs_type = (known after apply)
-                            + pd_id   = (known after apply)
-                            }
-
-                        + projected {
-                            + default_mode = (known after apply)
-
-                            + sources {
-                                + config_map {
-                                    + name     = (known after apply)
-                                    + optional = (known after apply)
-
-                                    + items {
-                                        + key  = (known after apply)
-                                        + mode = (known after apply)
-                                        + path = (known after apply)
-                                        }
-                                    }
-
-                                + downward_api {
-                                    + items {
-                                        + mode = (known after apply)
-                                        + path = (known after apply)
-
-                                        + field_ref {
-                                            + api_version = (known after apply)
-                                            + field_path  = (known after apply)
-                                            }
-
-                                        + resource_field_ref {
-                                            + container_name = (known after apply)
-                                            + divisor        = (known after apply)
-                                            + resource       = (known after apply)
-                                            }
-                                        }
-                                    }
-
-                                + secret {
-                                    + name     = (known after apply)
-                                    + optional = (known after apply)
-
-                                    + items {
-                                        + key  = (known after apply)
-                                        + mode = (known after apply)
-                                        + path = (known after apply)
-                                        }
-                                    }
-
-                                + service_account_token {
-                                    + audience           = (known after apply)
-                                    + expiration_seconds = (known after apply)
-                                    + path               = (known after apply)
-                                    }
-                                }
-                            }
-
-                        + quobyte {
-                            + group     = (known after apply)
-                            + read_only = (known after apply)
-                            + registry  = (known after apply)
-                            + user      = (known after apply)
-                            + volume    = (known after apply)
-                            }
-
-                        + rbd {
-                            + ceph_monitors = (known after apply)
-                            + fs_type       = (known after apply)
-                            + keyring       = (known after apply)
-                            + rados_user    = (known after apply)
-                            + rbd_image     = (known after apply)
-                            + rbd_pool      = (known after apply)
-                            + read_only     = (known after apply)
-
-                            + secret_ref {
-                                + name      = (known after apply)
-                                + namespace = (known after apply)
-                                }
-                            }
-
-                        + secret {
-                            + default_mode = (known after apply)
-                            + optional     = (known after apply)
-                            + secret_name  = (known after apply)
-
-                            + items {
-                                + key  = (known after apply)
-                                + mode = (known after apply)
-                                + path = (known after apply)
-                                }
-                            }
-
-                        + vsphere_volume {
-                            + fs_type     = (known after apply)
-                            + volume_path = (known after apply)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    # kubernetes_service.tf-k8s-service will be created
-    + resource "kubernetes_service" "tf-k8s-service" {
-        + id                     = (known after apply)
-        + status                 = (known after apply)
-        + wait_for_load_balancer = true
-
-        + metadata {
-            + generation       = (known after apply)
-            + labels           = {
-                + "name" = "tf-k8s-deploy"
-                }
-            + name             = "terraform-k8s-service"
-            + namespace        = "default"
-            + resource_version = (known after apply)
-            + uid              = (known after apply)
-            }
-
-        + spec {
-            + cluster_ip                  = (known after apply)
-            + external_traffic_policy     = (known after apply)
-            + health_check_node_port      = (known after apply)
-            + ip_families                 = (known after apply)
-            + ip_family_policy            = (known after apply)
-            + publish_not_ready_addresses = false
-            + session_affinity            = "None"
-            + type                        = "NodePort"
-
-            + port {
-                + node_port   = 30080
-                + port        = 80
-                + protocol    = "TCP"
-                + target_port = "80"
-                }
-            }
-        }
+   
 
     Plan: 2 to add, 0 to change, 0 to destroy.
 
@@ -799,11 +412,13 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     can't guarantee that exactly these actions will be performed if
     "terraform apply" is subsequently run.
     ```
+
     En este caso creará dos recursos.
 
     ```Shell
     ls -l
     ```
+
     Comprobamos que aún no se ha creado el fichero terraform.tfstate. Para ello debemos implemetar el código
 
     ```shell
@@ -940,6 +555,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     -rw-rw-r-- 1 cloud_user cloud_user 7547 Jun 22 07:12 terraform.tfstate.backup
     ```
 
+***
 
 ## Laboratorio - Migración de Terraform State a Terraform Cloud
 
@@ -947,29 +563,225 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 Fichero main.tf:
 
-    ```shell
+    ```yaml
     provider "aws" {
-    region = "us-east-1"
+        region = "us-east-1"
     }
     resource "aws_instance" "vm" {
-    ami           = "ami-065efef2c739d613b"
-    subnet_id     = "subnet-0ab44ccb794159b85"
-    instance_type = "t3.micro"
-    tags = {
-    Name = "my-first-tf-node"
-    }
+        ami           = "ami-065efef2c739d613b"
+        subnet_id     = "subnet-0ab44ccb794159b85"
+        instance_type = "t3.micro"
+        tags = {
+            Name = "my-first-tf-node"
+        }
     }
     ```
+
 1. Inicializar directorio de trabajo y aplicar código
 
     ```shell
-    $ terraform init
-    $ terraform apply
+    terraform init
+    terraform apply
     ```
 
 ### Genere clave de acceso en la consola de administración de AWS
 
 1. En **AWS services** clicar en **IAM**
 
-    ![IAM](images/IAM-AWS%20Management%20Consolepng.png)
+2. En el dashboard de **IAM**, bajo **IAM resources**, clicar en **users**
+
+3. En la lista de usuarios, seleccionar el usuario con el que hemos aplicado la aplicación Terraform
+
+4. Clicar en **Credenciales de seguridad**
+
+    ![Credenciales de seguridad](images/CredencialesSeguridad.png)
+
+5. Clicar en **Crear clave de acceso**
+
+    ![Clave de acceso](images/ClaveAcceso.png)
+
+6. En la nueva ventana, clicar en **descargar archivo .csv**
+
+    ![Descargar .csv](images/Descargarcsv.png)
+
+### Configurar espacio de trabajo en Terraform Cloud
+
+1. Ir a <https://app.terraform.io/session>. Crear cuenta.
+2. Una vez iniciada la sesión, seleccione empezar desde cero. Rellenar el campo **Nombre de la organización**
+3. Seleccionar opción **CLI-driven workflow**
+
+    ![CLI](images/CLI-driven-workflow.png)
+
+4. Crear espacio de trabajo
+
+5. Seleccionar la pestaña **Variables** y clicar en **add variable**, rellenar con *AWS_ACCESS_KEY_ID*
+    ![Variables](images/variables.png)
+
+6. En el campo **Value** pegar la clave que descargamos de AWS y guardar
+
+    ![AWS key](images/AWSKey.png)
+
+7. Repetimos el mismo proceso con la variable *AWS_SECRET_ACCESS_KEY*
+
+### Cree su token de API para el inicio de sesión de terraform CLI
+
+1. En la parte superior derecha de la web de terraform cloud, clicar en avatar y selecionar **Configuracion de usuario**
+2. En el menú de la izda, seleccionar **tokens**, **create api token**, lo llamaremos *terraform_login*
+
+### Agregar la configuración de back-end
+
+1. En el CLI, iniciar sesión en terraform cloud, escribir yes y pegar el token de terraform cloud
+
+    ```shell
+    terraform login
+    Token for app.terraform.io:
+    Enter a value:
+
+
+    Retrieved token for user miguelmaestro
+
+
+    ---------------------------------------------------------------------------------
+
+                                            -
+                                            -----                           -
+                                            ---------                      --
+                                            ---------  -                -----
+                                            ---------  ------        -------
+                                                -------  ---------  ----------
+                                                    ----  ---------- ----------
+                                                    --  ---------- ----------
+    Welcome to Terraform Cloud!                     -  ---------- -------
+                                                        ---  ----- ---
+    Documentation: terraform.io/docs/cloud             --------   -
+                                                        ----------
+                                                        ----------
+                                                        ---------
+                                                            -----
+                                                                -
+
+
+    New to TFC? Follow these steps to instantly apply an example configuration:
+
+    $ git clone https://github.com/hashicorp/tfc-getting-started.git
+    $ cd tfc-getting-started
+    $ scripts/setup.sh
+    ```
+
+2. Agregar el siguiente código al fichero main.tf para agregar el backend remoto a la configuración:
+
+    ```yaml
+    terraform {
+        backend "remote" {
+            organization = "<YOUR ORG NAME>"
+            workspaces {
+                name = "lab-migrate-state"
+            }
+        }
+
+        required_providers {
+            aws = {
+                source  = "hashicorp/aws"
+                version = "~> 3.27"
+            }
+        }
+    }
+    ```
+
+3. Comprobamos que el fichero de configuración se ha formateado correctamente
+
+    ```shell
+    terraform fmt -recursive
+    terraform init
+    terraform validate
+    ```
+
+    > Es posible que la versión del server no coincida con la de Terraform Cloud, añadir la flag -upgrade al comando terraform init
+
+    ```sheel
+        terraform init -upgrade
+    ```
+
+4. Aplicamos la configuración
+
+    ```shell
+    terraform apply
+    ```
+
+5. Vemos como se ha ejecutado en la web Terraform Cloud
+
+    ![Ejecución desde CLI](images/LatestRun.png)
+
+6. En la pestaña **Runs** tenemos más datos sobre la ejecución.
+
+    ![Log ejecución](images/runs.png)
+
+    ***
+## Laboratorio 3 - Uso de Terraform Provisioners para configurar un servidor web Apache en AWS
+
+1. Clone el código requerido del repositorio proporcionado
+
+    ```shell
+    git clone https://github.com/linuxacademy/content-hashicorp-certified-terraform-associate-foundations.git
+    ```
+2. Examinar el codigo main.tf
+
+    ```shell
+    cat main.tf
+    # Creamos una instancia llamada webserver VVV
+    resource "aws_instance" "webserver" {
+        # Estamos pasando una serie de parámetros para el recurso, como la AMI en la que se activará la máquina virtual, el tipo de 
+        # instancia, la clave privada que usará la instancia, la IP pública adjunta a la instancia, el grupo de seguridad aplicado a la 
+        # instancia y el identificador de subred donde se activará la máquina virtual. VVV
+        ami                         = data.aws_ssm_parameter.webserver-ami.value
+        instance_type               = "t3.micro"
+        key_name                    = aws_key_pair.webserver-key.key_name
+        associate_public_ip_address = true
+        vpc_security_group_ids      = [aws_security_group.sg.id]
+        subnet_id                   = aws_subnet.subnet.id
+        # Se trata de un provisionador remoto, invoca un script de recurso remoto despues de crearlo. VVV
+        provisioner "remote-exec" {
+            #Luego, el aprovisionador emitirá los comandos configurados en el bloque para instalar el servidor web Apache en CentOS a 
+            # través del administrador de paquetes, iniciará el servidor Apache, creará una sola página web llamada *My Test Website 
+            # With Help From Terraform Provisioner* como un archivo y moverá ese archivo al directorio de datos del servidor web para 
+            # ser servido globalmente VVV
+            inline = [
+            "sudo yum -y install httpd && sudo systemctl start httpd",
+            "echo '<h1><center>My Test Website With Help From Terraform Provisioner</center></h1>' > index.html",
+            "sudo mv index.html /var/www/html/"
+            ]
+            # El aprovisionador utiliza los parametro configurados en el bloque incrustado para conectarse a la instancia AWS EC2
+            # que se está creando. VVV
+            connection {
+                type        = "ssh"
+                user        = "ec2-user"
+                private_key = file("~/.ssh/id_rsa")
+                host        = self.public_ip
+            }
+        }
+        tags = {
+            Name = "webserver"
+        }
+    }
+
+3. Iniciar terraform, iniciar plan, validar el codigo y aplicar
+
+    ```shell
+    terraform init
+    terraform validate
+    Success! The configuration is valid.
+    terraform plan
+    Plan: 7 to add, 0 to change, 0 to destroy.
+    terraform apply
+    Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+    Outputs:
+
+    Webserver-Public-IP = 34.238.172.200
+    ´´´
+4. Nos ha dado la IP publica como valor, si la pegamos en el navegador podemos ver nuestro sitio web de prueba con la ayuda de *Terraform Provisioner*
+
+    ![My web test](images/WebTest_Terraform_Provisioner.png)
+    
+***
 
