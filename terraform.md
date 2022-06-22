@@ -781,7 +781,7 @@ Fichero main.tf:
     ´´´
 4. Nos ha dado la IP publica como valor, si la pegamos en el navegador podemos ver nuestro sitio web de prueba con la ayuda de *Terraform Provisioner*
 
-    ![My web test](images/WebTest_Terraform_Provisioner.png)
+    ![My web test](images/WebTest_Terraform_Provisioner.png#center)
     
 ***
 
