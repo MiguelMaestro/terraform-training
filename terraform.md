@@ -598,7 +598,7 @@ Fichero main.tf:
 
 5. Clicar en **Crear clave de acceso**
 
-    ![Clave de acceso](images/ClaveAcceso.png)
+    ![Clave de acceso](images/ClaveAcceso.png#center)
 
 6. En la nueva ventana, clicar en **descargar archivo .csv**
 
