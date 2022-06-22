@@ -717,6 +717,7 @@ Fichero main.tf:
     ![Log ejecución](images/runs.png)
 
     ***
+
 ## Laboratorio 3 - Uso de Terraform Provisioners para configurar un servidor web Apache en AWS
 
 1. Clone el código requerido del repositorio proporcionado
@@ -724,6 +725,7 @@ Fichero main.tf:
     ```shell
     git clone https://github.com/linuxacademy/content-hashicorp-certified-terraform-associate-foundations.git
     ```
+
 2. Examinar el codigo main.tf
 
     ```shell
@@ -782,6 +784,6 @@ Fichero main.tf:
 4. Nos ha dado la IP publica como valor, si la pegamos en el navegador podemos ver nuestro sitio web de prueba con la ayuda de *Terraform Provisioner*
 
     ![My web test](images/WebTest_Terraform_Provisioner.png#center)
-    
-***
+    <img style="float: right;" src="images/WebTest_Terraform_Provisioner.png">
 
+***
