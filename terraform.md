@@ -299,7 +299,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ***
 
-## Laboratorio - Explorando la funcionalidad de estado de Terraform
+## Laboratorio 1 - Explorando la funcionalidad de estado de Terraform
 
 ### Comprobar el estado de Terraform y Minikube
 
@@ -440,7 +440,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
     ```
 
-### Observe cómo el archivo de estado de Terraform rastrea los recursos
+### Observa cómo el archivo de estado de Terraform rastrea los recursos
 
 1. Compruebe que los pods se han creado
 
@@ -557,7 +557,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ***
 
-## Laboratorio - Migración de Terraform State a Terraform Cloud
+## Laboratorio 2 - Migración de Terraform State a Terraform Cloud
 
 ### Configurar y aplicar la configuración de Terraform
 
@@ -784,6 +784,5 @@ Fichero main.tf:
 4. Nos ha dado la IP publica como valor, si la pegamos en el navegador podemos ver nuestro sitio web de prueba con la ayuda de *Terraform Provisioner*
 
     ![My web test](images/WebTest_Terraform_Provisioner.png#center)
-    <img style="float: right;" src="images/WebTest_Terraform_Provisioner.png">
 
 ***
