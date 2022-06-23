@@ -299,7 +299,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ***
 
-## Laboratorio - Explorando la funcionalidad de estado de Terraform
+## Laboratorio 1 - Explorando la funcionalidad de estado de Terraform
 
 ### Comprobar el estado de Terraform y Minikube
 
@@ -557,7 +557,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ***
 
-## Laboratorio - Migración de Terraform State a Terraform Cloud
+## Laboratorio 2 - Migración de Terraform State a Terraform Cloud
 
 ### Configurar y aplicar la configuración de Terraform
 
