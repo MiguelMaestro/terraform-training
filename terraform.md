@@ -594,15 +594,21 @@ Fichero main.tf:
 
 4. Clicar en **Credenciales de seguridad**
 
-    ![Credenciales de seguridad](images/CredencialesSeguridad.png)
+<p align="center">
+  <img src="/images/CredencialesSeguridad.png" alt:"Credenciales de seguridad" />
+</p>
 
 5. Clicar en **Crear clave de acceso**
 
-    ![Clave de acceso](images/ClaveAcceso.png)
+<p align="center">
+<img src="/images/ClaveAcceso.png" alt:"Clave de acceso" />
+</p>
 
 6. En la nueva ventana, clicar en **descargar archivo .csv**
 
-    ![Descargar .csv](images/Descargarcsv.png)
+<p align="center">
+  <img src="/images/Descargarcsv.png" />
+</p>
 
 ### Configurar espacio de trabajo en Terraform Cloud
 
@@ -610,16 +616,23 @@ Fichero main.tf:
 2. Una vez iniciada la sesión, seleccione empezar desde cero. Rellenar el campo **Nombre de la organización**
 3. Seleccionar opción **CLI-driven workflow**
 
-    ![CLI](images/CLI-driven-workflow.png)
-
+<p align="center">
+  <img src="/images/CLI-driven-workflow.png" alt:"CLI driven workflow" />
+</p>
+   
 4. Crear espacio de trabajo
 
 5. Seleccionar la pestaña **Variables** y clicar en **add variable**, rellenar con *AWS_ACCESS_KEY_ID*
-    ![Variables](images/variables.png)
+    
+<p align="center">
+  <img src="/images/variables.png" alt:"Variables" />
+</p>
 
 6. En el campo **Value** pegar la clave que descargamos de AWS y guardar
 
-    ![AWS key](images/AWSKey.png)
+<p align="center">
+  <img src="/images/AWSKey.png" alt:"AWS key" />
+</p>
 
 7. Repetimos el mismo proceso con la variable *AWS_SECRET_ACCESS_KEY*
 
@@ -710,12 +723,16 @@ Fichero main.tf:
 
 5. Vemos como se ha ejecutado en la web Terraform Cloud
 
-    ![Ejecución desde CLI](images/LatestRun.png)
+<p align="center">
+  <img src="/images/LatestRun.png" alt:"Ejecución desde CLI" />
+</p>
 
 6. En la pestaña **Runs** tenemos más datos sobre la ejecución.
-
-    ![Log ejecución](images/runs.png)
-
+   
+<p align="center">
+  <img src="/images/runs.png" alt:"Salida de la ejecución" />
+</p>
+   
     ***
 ## Laboratorio 3 - Uso de Terraform Provisioners para configurar un servidor web Apache en AWS
 
@@ -781,7 +798,9 @@ Fichero main.tf:
     ´´´
 4. Nos ha dado la IP publica como valor, si la pegamos en el navegador podemos ver nuestro sitio web de prueba con la ayuda de *Terraform Provisioner*
 
-    ![My web test](images/WebTest_Terraform_Provisioner.png)
+<p align="center">
+  <img src="/images/WebTest_Terraform_Provisioner.png" alt:"My test web" />
+</p>
     
 ***
 
