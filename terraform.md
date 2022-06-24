@@ -229,7 +229,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     } 
     ```
 
-- Ejemplo main.tf
+- Ejemplo *main.tf*
 
     ```shell
     provider "aws" {
@@ -273,7 +273,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
     }  
     ```
 
-- Ejemplo main.tf
+- Ejemplo *main.tf*
 
     ```shell
     variable "main_region" {
@@ -561,7 +561,7 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ### Configurar y aplicar la configuración de Terraform
 
-Fichero main.tf:
+Fichero *main.tf*
 
     ```yaml
     provider "aws" {
@@ -681,7 +681,7 @@ Fichero main.tf:
     $ scripts/setup.sh
     ```
 
-2. Agregar el siguiente código al fichero main.tf para agregar el backend remoto a la configuración:
+2. Agregar el siguiente código al fichero *main.tf* para agregar el backend remoto a la configuración:
 
     ```yaml
     terraform {
@@ -733,7 +733,9 @@ Fichero main.tf:
   <img src="/images/runs.png" alt:"Salida de la ejecución" />
 </p>
 
-    ***
+***
+
+# Terraform and AWS
 
 ## Laboratorio 3 - Uso de Terraform Provisioners para configurar un servidor web Apache en AWS
 
@@ -743,7 +745,7 @@ Fichero main.tf:
     git clone https://github.com/linuxacademy/content-hashicorp-certified-terraform-associate-foundations.git
     ```
 
-2. Examinar el codigo main.tf
+2. Examinar el codigo *main.tf*
 
     ```shell
     cat main.tf
@@ -804,13 +806,11 @@ Fichero main.tf:
   <img src="/images/WebTest_Terraform_Provisioner.png" alt:"My test web" />
 </p>
 
-***
-
 ## Laboratorio 4 - Realizar cambios en la infraestructura de AWS con Terraform
 
 ### Configurar el entorno
 
-1. Fichero main.tf
+1. Fichero *main.tf*
 
     ```shell
     terraform {
@@ -940,7 +940,7 @@ Fichero main.tf:
 
 ### Implementar cambios en la configuración
 
-1. En el fichero main.tf cambiamos un par de configuraciones
+1. En el fichero *main.tf* cambiamos un par de configuraciones
 
     ```shell
     instance_type = "t2.micro" ---> instance_type = "t3.micro"
@@ -948,7 +948,7 @@ Fichero main.tf:
     Name = "Batman" ----> Name = "Robin"
     ```
 
-2. Validamos el formato del codigo, iniciamos plan, lo validamos y aplicamos
+2. Validamos el formato del código, iniciamos plan, lo validamos y aplicamos
 
     ```shell
     terraform fmt # Si no devuelve nada, es correcto
@@ -957,16 +957,233 @@ Fichero main.tf:
     Success! The configuration is valid.
     terraform apply
 
-Podemos ver en AWS que los cambios se han aplicado correctamente:
+    Podemos ver en AWS que los cambios se han aplicado correctamente:
 
 <p align="center">
-  <img src="/images/aws-apply-robin.png" alt:"My test web" />
+  <img src="/images/AWS-batman.png" />
 </p>
 
-3. Eliminamos todos lso recursos
+1. Eliminamos todos los recursos
 
     ```shell
     terraform destroy
     ```
 
+## Laboratorio 5 - Uso de variables output para consultar datos en AWS
+
+<p align="center">
+  <img src="/images/output-deseado.png" />
+</p>
+
+### Configurar el entorno
+
+1. Fichero *main.tf*
+
+    ```shell
+        terraform {
+            required_providers {
+                aws = {
+                    source  = "hashicorp/aws"
+                    version = "~> 3.27"
+                }
+            }
+
+            required_version = ">= 0.14.9"
+        }
+
+        provider "aws" {
+            profile = "default"
+            region  = "us-east-1"
+        }
+
+        resource "aws_instance" "app_server" {
+            ami           = "ami-065efef2c739d613b"
+            subnet_id     = "subnet-0b65cef7d5dd0e8fc"
+            instance_type = "t3.micro"
+
+            tags = {
+                Name = var.instance_name
+            }
+        }
+
+        # variables
+        variable "instance_name" {
+            description = "Value of the Name tag for the EC2 instance"
+            type        = string
+            default     = "Batman"
+        }
+    ```
+
+2. Iniciamos directorio de trabajo y aplicamos configuración
+
+    ```shell
+    terraform init
+    terraform apply
+    ```
+
+<p align="center">
+  <img src="/images/AWS-batman.png" />
+</p>
+
+### Agregar variables de salida e implementar cambios
+
+1. Creamos el fichero *outputs.tf*
+
+    ```shell
+    output "instance_name" {
+        description = "The tag name for this instance"
+        value       = var.instance_name
+    }
+
+    output "instance_id" {
+        description = "ID of the EC2 instance"
+        value       = aws_instance.app_server.id
+    }
+
+    output "instance_public_ip" {
+        description = "Public IP address of the EC2 instance"
+        value       = aws_instance.app_server.public_ip
+    }
+    ```
+
+    > Este código incluye 3 variables de salida: *instance_name*, *instance_id* y *instance_public_ip*.
+
+    > Aseguramos que tenga el formato correcto con el comando *terraform fmt*
+
+2. Aplicamos los cambios
+
+    ```shell
+    terraform plan
+    aws_instance.app_server: Refreshing state... [id=i-04a8ff230ef59ed4c]
+
+    Changes to Outputs:
+    + instance_id        = "i-04a8ff230ef59ed4c"
+    + instance_name      = "Batman"
+    + instance_public_ip = "54.161.231.5"
+
+    You can apply this plan to save these new output values to the Terraform state, without changing any real infrastructure.
+
+    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
+
+    terraform apply
+    aws_instance.app_server: Refreshing state... [id=i-04a8ff230ef59ed4c]
+
+    Changes to Outputs:
+    + instance_id        = "i-04a8ff230ef59ed4c"
+    + instance_name      = "Batman"
+    + instance_public_ip = "54.161.231.5"
+
+    You can apply this plan to save these new output values to the Terraform state, without changing any real infrastructure.
+
+    Do you want to perform these actions?
+    Terraform will perform the actions described above.
+    Only 'yes' will be accepted to approve.
+
+    Enter a value: yes
+
+
+    Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+    Outputs:
+
+    instance_id = "i-04a8ff230ef59ed4c"
+    instance_name = "Batman"
+    instance_public_ip = "54.161.231.5"
+    ```
+
+    > *terraform output* para ver versión simplificada de la salida:
+
+    ```shell
+    terraform output
+    instance_id = "i-04a8ff230ef59ed4c"
+    instance_name = "Batman"
+    instance_public_ip = "54.161.231.5"
+    ```
+
 ***
+
+# Terraform y Azure
+
+## Laboratorio 6 - Desplegando una aplicación Web en Azure con Terraform
+
+### Configuración de la CLI de Azure
+
+En Azure Portal, seleccione el botón Línea de comandos en la parte superior de la pantalla.
+
+<p align="center">
+  <img src="/images/azure-cli.png" />
+</p>
+
+Abra la CLI. Aquí, seleccione Bash cuando se le solicite.
+
+<p align="center">
+  <img src="/images/azure-cli-bash.png" />
+</p>
+
+Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de Cloud Shell que su cuenta de almacenamiento aprovisionada en laboratorio. Deje tanto el grupo de recursos como la cuenta de almacenamiento como el uso de los recursos existentes. En la sección Recurso compartido de archivos, escriba un nombre para la cuenta (por ejemplo, estamos usando cloudcli) y haga clic en el botón Adjuntar almacenamiento.
+
+<p align="center">
+  <img src="/images/azure-advanced-bash.png" />
+</p>
+
+2. Una vez configurada la bash, nos aparecerá en pantalla. Necesitamos subir nuestro fichero main.tf:
+
+    ```shell
+    provider "azurerm" {
+        version = 1.38
+        }
+
+    resource "azurerm_app_service_plan" "svcplan" {
+        name                = "newweb-appserviceplan"
+        location            = "centerus"
+        resource_group_name = "191-ab6de3a1-deploy-a-web-application-with-terrafo"
+
+        sku {
+            tier = "Standard"
+            size = "S1"
+        }
+    }
+
+    resource "azurerm_app_service" "appsvc" {
+        name                = "custom-tf-webapp-forstudent"
+        location            = "centerus"
+        resource_group_name = "191-ab6de3a1-deploy-a-web-application-with-terrafo"
+        app_service_plan_id = azurerm_app_service_plan.svcplan.id
+
+
+        site_config {
+            dotnet_framework_version = "v4.0"
+            scm_type                 = "LocalGit"
+        }
+    }
+    ```
+
+    > Podemos crearlo desde la bash o subirlo con el botón upload/download de la bash de azure
+
+<p align="center">
+  <img src="/images/azure-cli-upload.png" />
+</p>
+
+3. Tras esto, inciamos directorio de trabajo y aplicamos
+
+    ```shell
+    terraform init
+    terraform plan
+    terraform apply
+
+4. Una vez aplicado lo podemos ver en el portal de Azure y podemos revsar todos los datos
+
+<p align="center">
+  <img src="/images/azure-deployment-completed.png" />
+</p>
+
+<p align="center">
+  <img src="/images/azure-app-details.png" />
+</p>
+
+<p align="center">
+  <img src="/images/azure-app-properties.png" />
+</p>
+
