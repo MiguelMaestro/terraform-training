@@ -1173,7 +1173,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     terraform plan
     terraform apply
 
-4. Una vez aplicado lo podemos ver en el portal de Azure y podemos revsar todos los datos
+1. Una vez aplicado lo podemos ver en el portal de Azure y podemos revsar todos los datos
 
 <p align="center">
   <img src="/images/azure-deployment-completed.png" />
@@ -1186,4 +1186,169 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 <p align="center">
   <img src="/images/azure-app-properties.png" />
 </p>
+
+***
+
+## Laboratorio 7 - Realizar cambios en la infraestructura de Azure con Terraform
+
+<p align="center">
+  <img src="/images/change-azure-with-terraform.png" />
+</p>
+
+### Inicie sesión y configurar la CLI
+
+1. Configurar la Azure CLI bash de la siguiente forma y clicar en *Crear almacenamiento*
+
+<p align="center">
+  <img src="/images/azure-cli-2.png" />
+</p>
+
+2. Descargar el fichero .zip proporciado por ACG para realizar el laboratorio y descomprimirlo
+
+    ```shell
+    wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/lab-managing-azure.zip
+    unzip lab-managing-azure.zip
+    ```
+
+3. Nos movemos hasta el interior del directorio y revisamos el fichero main.tf
+
+    ```shell
+    cd lab-managing-azure/
+    vim main.tf
+
+    # COnfiguración del proveedor azure
+    terraform {
+        required_providers {
+            azurerm = {
+                source  = "hashicorp/azurerm"
+                version = ">= 2.26"
+        }
+    }
+
+        required_version = ">= 0.14.9"
+    }
+
+    provider "azurerm" {
+        features {}
+        skip_provider_registration = true
+    }
+
+    # Creación de una red virtual
+    resource "azurerm_virtual_network" "vnet" {
+        name                = "BatmanInc"
+        address_space       = ["10.0.0.0/16"]
+        location            = "Central US"
+        resource_group_name = "552-000a4a6c-make-changes-to-azure-infrastructure"
+    ```
+
+### Implementar la infraestructura
+
+1. Iniciamos directorio de trabajo, planificamos la implementación y aplicamos la configuración.
+
+    ```shell
+    terraform init
+    terraform plan
+    terraform apply
+    azurerm_virtual_network.vnet: Creating...
+    azurerm_virtual_network.vnet: Creation complete after 7s [id=/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/552-000a4a6c-make-changes-to-azure-infrastructure/providers/Microsoft.Network/virtualNetworks/BatmanInc]
+
+    Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+    ```
+
+2. Podemos revisar el estado y la lista de recursos:
+
+    ```shell
+    terraform show
+    # azurerm_virtual_network.vnet:
+    resource "azurerm_virtual_network" "vnet" {
+        address_space           = [
+            "10.0.0.0/16",
+        ]
+        dns_servers             = []
+        flow_timeout_in_minutes = 0
+        guid                    = "5ca0a942-d3bd-4018-a727-8286c9a75585"
+        id                      = "/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/552-000a4a6c-make-changes-to-azure-infrastructure/providers/Microsoft.Network/virtualNetworks/BatmanInc"
+        location                = "centralus"
+        name                    = "BatmanInc"
+        resource_group_name     = "552-000a4a6c-make-changes-to-azure-infrastructure"
+        subnet                  = []
+    
+    }
+    
+    terraform state list
+    azurerm_virtual_network.vnet
+    ```
+
+    Como vemos, solo está administrando el recurso *azurerm_virtual_network.vnet*
+
+### Agregar una subred a la configuración
+
+1. Fichero *azure_resource_block.tf* para la configuración de la subred:
+
+    ```shell
+    # Create subnet
+    resource "azurerm_subnet" "subnet" {
+    name                 = "Robins"
+    resource_group_name  = "<Add YOUR RESOURCE GROUP NAME>"
+    virtual_network_name = azurerm_virtual_network.vnet.name
+    address_prefixes       = ["10.0.1.0/24"]
+    }
+    ```
+
+2. Tras realizar la planificación y aplicar el código desde terraform, podemos comprobar en el portal de Azure que la subred ha sido creada
+
+<p align="center">
+  <img src="/images/subred-robin.png" />
+</p>
+
+### Agregar una etiqueta a la configuración
+
+1. Vamos a editar el fichero *main.tf*, agregando algunas etiquetas al modulo de recursos de las red virtual, quedando así:
+
+    ´´´shell
+    vim main.tf
+
+# Configure the Azure provider
+
+    terraform {
+        required_providers {
+            azurerm = {
+                source  = "hashicorp/azurerm"
+                version = ">= 2.26"
+            }
+        }
+
+        required_version = ">= 0.14.9"
+    }
+
+    provider "azurerm" {
+        features {}
+        skip_provider_registration = true
+    }
+
+# Create a virtual network
+
+    resource "azurerm_virtual_network" "vnet" {
+        name                = "BatmanInc"
+        address_space       = ["10.0.0.0/16"]
+        location            = "Central US"
+        resource_group_name = "552-000a4a6c-make-changes-to-azure-infrastructure"
+
+# Agregamos etiqueta
+
+        tags = {
+            Environment = "TheBatcave"
+            Team        = "Batman"
+        }
+    }
+    ```
+
+2. Aplicamos la modificación al despliegue y ahora las red virtual tiene etiquetas:
+
+<p align="center">
+  <img src="/images/azure-tags.png" />
+</p>
+
+***
+
 
