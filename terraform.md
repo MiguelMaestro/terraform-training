@@ -1,6 +1,6 @@
 # TERRAFORM
 
-> [Terraform CLI cheatsheet](https://acloudguru-content-attachment-production.s3-accelerate.amazonaws.com/1622032650435-terraform-cheatsheet-from-ACG.pdf "Terraform Cheatsheet")
+[Terraform CLI Cheatsheet](docs/terraform-cheatsheet.pdf)
 
 ## Comandos terraform
 
@@ -619,11 +619,11 @@ Fichero main.tf:
 <p align="center">
   <img src="/images/CLI-driven-workflow.png" alt:"CLI driven workflow" />
 </p>
-   
+
 4. Crear espacio de trabajo
 
 5. Seleccionar la pestaña **Variables** y clicar en **add variable**, rellenar con *AWS_ACCESS_KEY_ID*
-    
+
 <p align="center">
   <img src="/images/variables.png" alt:"Variables" />
 </p>
@@ -728,12 +728,13 @@ Fichero main.tf:
 </p>
 
 6. En la pestaña **Runs** tenemos más datos sobre la ejecución.
-   
+
 <p align="center">
   <img src="/images/runs.png" alt:"Salida de la ejecución" />
 </p>
-   
+
     ***
+
 ## Laboratorio 3 - Uso de Terraform Provisioners para configurar un servidor web Apache en AWS
 
 1. Clone el código requerido del repositorio proporcionado
@@ -741,6 +742,7 @@ Fichero main.tf:
     ```shell
     git clone https://github.com/linuxacademy/content-hashicorp-certified-terraform-associate-foundations.git
     ```
+
 2. Examinar el codigo main.tf
 
     ```shell
@@ -801,6 +803,170 @@ Fichero main.tf:
 <p align="center">
   <img src="/images/WebTest_Terraform_Provisioner.png" alt:"My test web" />
 </p>
-    
+
 ***
 
+## Laboratorio 4 - Realizar cambios en la infraestructura de AWS con Terraform
+
+### Configurar el entorno
+
+1. Fichero main.tf
+
+    ```shell
+    terraform {
+        required_providers {
+            aws = {
+                source  = "hashicorp/aws"
+            version = "~> 3.27"
+            }
+        }
+
+        required_version = ">= 0.14.9"
+    }
+
+    provider "aws" {
+        profile = "default"
+        region  = "us-east-1"
+    }
+
+    resource "aws_instance" "app_server" {
+        ami           = "ami-065efef2c739d613b"
+        subnet_id     = "subnet-0e0ab6aaee86e9182"
+        instance_type = "t2.micro"
+
+        tags = {
+            Name = "Batman"
+        }
+    }
+    ```
+
+2. Iniciamos terraform y aplicamos código.
+
+    ```shell
+    terraform init
+    terraform apply
+    Plan: 1 to add, 0 to change, 0 to destroy.
+
+    Do you want to perform these actions?
+    Terraform will perform the actions described above.
+    Only 'yes' will be accepted to approve.
+
+    Enter a value: yes
+
+    aws_instance.app_server: Creating...
+    aws_instance.app_server: Still creating... [10s elapsed]
+    aws_instance.app_server: Still creating... [20s elapsed]
+    aws_instance.app_server: Still creating... [30s elapsed]
+    aws_instance.app_server: Creation complete after 32s [id=i-037675589811ce71c]
+
+    Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+    ```
+
+3. Confirmamos que se ha realizado de manera correcta y vemos todos los detalles
+
+    ```shell
+    $ terraform show
+    # aws_instance.app_server:
+    resource "aws_instance" "app_server" {
+        ami                                  = "ami-065efef2c739d613b"
+        arn                                  = "arn:aws:ec2:us-east-1:112755761569:instance/i-037675589811ce71c"
+        associate_public_ip_address          = true
+        availability_zone                    = "us-east-1a"
+        cpu_core_count                       = 1
+        cpu_threads_per_core                 = 1
+        disable_api_termination              = false
+        ebs_optimized                        = false
+        get_password_data                    = false
+        hibernation                          = false
+        id                                   = "i-037675589811ce71c"
+        instance_initiated_shutdown_behavior = "stop"
+        instance_state                       = "running"
+        instance_type                        = "t2.micro"
+        ipv6_address_count                   = 0
+        ipv6_addresses                       = []
+        monitoring                           = false
+        primary_network_interface_id         = "eni-08f0a58801961d37a"
+        private_dns                          = "ip-10-0-1-132.ec2.internal"
+        private_ip                           = "10.0.1.132"
+        public_dns                           = "ec2-34-201-151-200.compute-1.amazonaws.com"
+        public_ip                            = "34.201.151.200"
+        secondary_private_ips                = []
+        security_groups                      = []
+        source_dest_check                    = true
+        subnet_id                            = "subnet-0e0ab6aaee86e9182"
+        tags                                 = {
+            "Name" = "Batman"
+        }
+        tags_all                             = {
+            "Name" = "Batman"
+        }
+        tenancy                              = "default"
+        vpc_security_group_ids               = [
+            "sg-0efa9bfef250434e6",
+        ]
+
+        capacity_reservation_specification {
+            capacity_reservation_preference = "open"
+        }
+
+        credit_specification {
+            cpu_credits = "standard"
+        }
+
+        enclave_options {
+            enabled = false
+        }
+
+        metadata_options {
+            http_endpoint               = "enabled"
+            http_put_response_hop_limit = 1
+            http_tokens                 = "optional"
+            instance_metadata_tags      = "disabled"
+        }
+
+        root_block_device {
+            delete_on_termination = true
+            device_name           = "/dev/xvda"
+            encrypted             = false
+            iops                  = 100
+            tags                  = {}
+            throughput            = 0
+            volume_id             = "vol-044b6b03dcc0c5b53"
+            volume_size           = 8
+            volume_type           = "gp2"
+        }
+    }
+    ```
+
+### Implementar cambios en la configuración
+
+1. En el fichero main.tf cambiamos un par de configuraciones
+
+    ```shell
+    instance_type = "t2.micro" ---> instance_type = "t3.micro"
+
+    Name = "Batman" ----> Name = "Robin"
+    ```
+
+2. Validamos el formato del codigo, iniciamos plan, lo validamos y aplicamos
+
+    ```shell
+    terraform fmt # Si no devuelve nada, es correcto
+    terraform plan
+    terraform validate 
+    Success! The configuration is valid.
+    terraform apply
+
+Podemos ver en AWS que los cambios se han aplicado correctamente:
+
+<p align="center">
+  <img src="/images/aws-apply-robin.png" alt:"My test web" />
+</p>
+
+3. Eliminamos todos lso recursos
+
+    ```shell
+    terraform destroy
+    ```
+
+***
