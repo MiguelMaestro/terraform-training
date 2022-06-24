@@ -1336,6 +1336,9 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 
 # Agregamos etiqueta
 
+1. Agregamos etiqueta al fichero main.tf, al bloque de resursos:
+
+    ```shell
         tags = {
             Environment = "TheBatcave"
             Team        = "Batman"
