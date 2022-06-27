@@ -1307,34 +1307,36 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 
 1. Vamos a editar el fichero *main.tf*, agregando algunas etiquetas al modulo de recursos de las red virtual, quedando así:
 
-    ´´´shell
+    ```shell
     vim main.tf
+    
 
-# Configure the Azure provider
+    # Configure the Azure provider
 
-    terraform {
-        required_providers {
-            azurerm = {
-                source  = "hashicorp/azurerm"
-                version = ">= 2.26"
+        terraform {
+            required_providers {
+                azurerm = {
+                    source  = "hashicorp/azurerm"
+                    version = ">= 2.26"
+                }
             }
+
+            required_version = ">= 0.14.9"
         }
 
-        required_version = ">= 0.14.9"
-    }
+        provider "azurerm" {
+            features {}
+            skip_provider_registration = true
+        }
 
-    provider "azurerm" {
-        features {}
-        skip_provider_registration = true
-    }
+    # Create a virtual network
 
-# Create a virtual network
-
-    resource "azurerm_virtual_network" "vnet" {
-        name                = "BatmanInc"
-        address_space       = ["10.0.0.0/16"]
-        location            = "Central US"
-        resource_group_name = "552-000a4a6c-make-changes-to-azure-infrastructure"
+        resource "azurerm_virtual_network" "vnet" {
+            name                = "BatmanInc"
+            address_space       = ["10.0.0.0/16"]
+            location            = "Central US"
+            resource_group_name = "552-000a4a6c-make-changes-to-azure-infrastructure"
+    ```
 
 # Agregamos etiqueta
 
