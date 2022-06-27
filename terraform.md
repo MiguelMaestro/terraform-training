@@ -1354,4 +1354,145 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 
 ***
 
+ ## Laboratorio 8 - Usar variables de salida para consultar datos en Azure mediante Terraform
+
+ ### Implementar la infraestructura
+
+ 1. Preparar la Bash de Azure
+ 2. Descargue el archivo zip del repositorio de GitHub proporcionado y descomprimirlo:
+
+    ```shell
+    wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/lab-azure-outputs.zip
+    unzip lab-azure-outputs.zip
+    ```
+3. Una vez dentro del directorio del repo descargado revisamos el fichero main.tf y rellenamos los campos *Resource group name*
+
+    ```shell
+    # Configure the Azure provider
+    terraform {
+        required_providers {
+            azurerm = {
+                source  = "hashicorp/azurerm"
+                version = ">= 2.26"
+            }
+        }
+
+        required_version = ">= 0.14.9"
+    }
+
+    provider "azurerm" {
+        features {}
+        skip_provider_registration = true
+    }
+
+    # Create a virtual network
+    resource "azurerm_virtual_network" "vnet" {
+        name                = "BatmanInc"
+        address_space       = ["10.0.0.0/16"]
+        location            = "Central US"
+        resource_group_name = "553-733d53a2-use-output-variables-to-query-data-i"
+        tags = {
+            Environment = "TheBatcave"
+            Team        = "Batman"
+        }
+    }
+
+    # Create subnet
+    resource "azurerm_subnet" "subnet" {
+        name                 = "Robins"
+        resource_group_name  = "553-733d53a2-use-output-variables-to-query-data-i"
+        virtual_network_name = azurerm_virtual_network.vnet.name
+        address_prefixes     = ["10.0.1.0/24"]
+    }
+    ```
+
+4. Validamos el formato del fichero y si es correcto iniciamos directorio de trabajo y planificación:
+
+    ```shell
+    terraform fmt
+    terraform plan
+    terraform validate
+    Success! The configuration is valid.
+
+    terraform apply --auto-approve
+    Plan: 2 to add, 0 to change, 0 to destroy.
+    azurerm_virtual_network.vnet: Creating...
+    azurerm_virtual_network.vnet: Creation complete after 4s [id=/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/553-733d53a2-use-output-variables-to-query-data-i/providers/Microsoft.Network/virtualNetworks/BatmanInc]
+    azurerm_subnet.subnet: Creating...
+    azurerm_subnet.subnet: Creation complete after 4s [id=/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/553-733d53a2-use-output-variables-to-query-data-i/providers/Microsoft.Network/virtualNetworks/BatmanInc/subnets/Robins]
+
+    Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+    ```
+
+5. Una vez aplicada la configuración, revisamos detalles y recursos:
+
+    ```shell
+    terraform show
+    # azurerm_subnet.subnet:
+    resource "azurerm_subnet" "subnet" {
+    address_prefixes                               = [
+        "10.0.1.0/24",
+    ]
+    enforce_private_link_endpoint_network_policies = false
+    enforce_private_link_service_network_policies  = false
+    id                                             = "/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/553-733d53a2-use-output-variables-to-query-data-i/providers/Microsoft.Network/virtualNetworks/BatmanInc/subnets/Robins"
+    name                                           = "Robins"
+    resource_group_name                            = "553-733d53a2-use-output-variables-to-query-data-i"
+    virtual_network_name                           = "BatmanInc"
+    }
+
+    # azurerm_virtual_network.vnet:
+    resource "azurerm_virtual_network" "vnet" {
+        address_space           = [
+            "10.0.0.0/16",
+        ]
+        dns_servers             = []
+        flow_timeout_in_minutes = 0
+        guid                    = "186e83db-7a61-4a34-8b84-5f533e8825b4"
+        id                      = "/subscriptions/0f39574d-d756-48cf-b622-0e27a6943bd2/resourceGroups/553-733d53a2-use-output-variables-to-query-data-i/providers/Microsoft.Network/virtualNetworks/BatmanInc"
+        location                = "centralus"
+        name                    = "BatmanInc"
+        resource_group_name     = "553-733d53a2-use-output-variables-to-query-data-i"
+        subnet                  = []
+        tags                    = {
+            "Environment" = "TheBatcave"
+            "Team"        = "Batman"
+        }
+    }
+
+    terraform state list
+    azurerm_subnet.subnet
+    azurerm_virtual_network.vnet
+    ```
+
+### Agregar el archivo de variable outputs.tf
+
+1. Descargamos el fichero del repo proporcionado y lo revisamos:
+
+    ´´´shell
+    wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/outputs_azure.tf
+    vim outputs.tf
+
+    output "azurerm_virtual_network_name" {
+        value = azurerm_virtual_network.vnet.name
+    }
+
+    output "azurerm_subnet_name" {
+        value = azurerm_subnet.subnet.name
+    }
+    ```
+
+2. Verificamos que el formato sea correcto, iniciamos plan si es así, validamos configuración y aplicamos
+
+    ```shell
+    # Validamos formato
+    terraform ftm
+    # Realizamos tirada en seco
+    terraform plan
+    # Validamos configuración
+    terraform validate
+    # Aplicamos
+
+
+***
 
