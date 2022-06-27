@@ -557,6 +557,8 @@ El formato de ficheros de configuración de terraform es .tf pero se puede ver t
 
 ***
 
+# Terraform Cloud
+
 ## Laboratorio 2 - Migración de Terraform State a Terraform Cloud
 
 ### Configurar y aplicar la configuración de Terraform
@@ -1354,9 +1356,9 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 
 ***
 
- ## Laboratorio 8 - Usar variables de salida para consultar datos en Azure mediante Terraform
+## Laboratorio 8 - Usar variables de salida para consultar datos en Azure mediante Terraform
 
- ### Implementar la infraestructura
+### Implementar la infraestructura
 
  1. Preparar la Bash de Azure
  2. Descargue el archivo zip del repositorio de GitHub proporcionado y descomprimirlo:
@@ -1365,6 +1367,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/lab-azure-outputs.zip
     unzip lab-azure-outputs.zip
     ```
+
 3. Una vez dentro del directorio del repo descargado revisamos el fichero main.tf y rellenamos los campos *Resource group name*
 
     ```shell
@@ -1406,7 +1409,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     }
     ```
 
-4. Validamos el formato del fichero y si es correcto iniciamos directorio de trabajo y planificación:
+ 4. Validamos el formato del fichero y si es correcto iniciamos directorio de trabajo y planificación:
 
     ```shell
     terraform fmt
@@ -1424,7 +1427,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
     ```
 
-5. Una vez aplicada la configuración, revisamos detalles y recursos:
+ 5. Una vez aplicada la configuración, revisamos detalles y recursos:
 
     ```shell
     terraform show
@@ -1470,7 +1473,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 1. Descargamos el fichero del repo proporcionado y lo revisamos:
 
     ´´´shell
-    wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/outputs_azure.tf
+    wget <https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/outputs_azure.tf>
     vim outputs.tf
 
     output "azurerm_virtual_network_name" {
@@ -1493,7 +1496,274 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     terraform validate
     # Aplicamos
 
+***
+
+# Terraform y Kubernetes
+
+## Laboratorio 9 - Terraform para crear una implementación de Kubernetes
+
+### Crear el clúster de Kubernetes
+
+1. Ficheros necesarios para crear cluster de Kubernetes
+   1. kind-config-yaml
+
+    ```yaml
+    kind: Cluster
+    apiVersion: kind.x-k8s.io/v1alpha4
+    nodes:
+    - role: control-plane
+        extraPortMappings:
+      - containerPort: 30201
+            hostPort: 30201
+            listenAddress: "0.0.0.0"
+    ```
+    2. kubernetes.tf
+
+    ```shell
+    terraform {
+    required_providers {
+        kubernetes = {
+            source = "hashicorp/kubernetes"
+            }
+        }
+    }
+
+    variable "host" {
+        type = string
+    }
+
+    variable "client_certificate" {
+        type = string
+    }
+
+    variable "client_key" {
+        type = string
+    }
+
+    variable "cluster_ca_certificate" {
+        type = string
+    }
+
+    provider "kubernetes" {
+        host = var.host
+
+        client_certificate     = base64decode(var.client_certificate)
+        client_key             = base64decode(var.client_key)
+        cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
+    }
+    ```
+
+    3. terraform.tfvars
+
+    ```shell
+    # terraform.tfvars
+
+    host                   = "DUMMY VALUE"
+    client_certificate     = "DUMMY VALUE"
+    client_key             = "DUMMY VALUE"
+    cluster_ca_certificate = "DUMMY VALUE"
+    ```
+
+2. Cree su clúster de Kubernetes
+
+    ```shell
+    kind create cluster --name lab-terraform-kubernetes --config kind-config.yaml
+
+    Creating cluster "lab-terraform-kubernetes" ...
+    ✓ Ensuring node image (kindest/node:v1.21.1) 🖼
+    ✓ Preparing nodes 📦
+    ✓ Writing configuration 📜
+    ✓ Starting control-plane 🕹️
+    ✓ Installing CNI 🔌
+    ✓ Installing StorageClass 💾
+    Set kubectl context to "kind-lab-terraform-kubernetes"
+    You can now use your cluster with:
+
+    kubectl cluster-info --context kind-lab-terraform-kubernetes
+
+    Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+    ```
+
+3. Copiamos el comando obtenido en la ejecución de la creación del cluster para obtener información
+
+    ```shell
+    kubectl cluster-info --context kind-lab-terraform-kubernetes
+
+    Kubernetes control plane is running at https://127.0.0.1:44645
+    CoreDNS is running at https://127.0.0.1:44645/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+    To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+    
+    kind get clusters
+    lab-terraform-kubernetes
+    ```
+
+### Configurar Terraform para su uso con el clúster de Kubernetes
+
+1. Obtener información sobre el cluster de Kubernetes para rellenar el fichero de variables *terraform.tfvars*
+
+    ```shell
+    kubectl config view --minify --flatten --context=kind-lab-terraform-kubernetes
+
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1EWXlOekE0TlRVME0xb1hEVE15TURZeU5EQTROVFUwTTFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTW1RCmhQck5XcmtJSVdTMmhmTE1kWStIbU5mUGpTdjhFU0xIeHgzVzRtU1VKcFJpRFgyL0VMTkQ3YTQ0NWF2QzhWZVMKaTBQODV0ZEV5UEZhUkdrQndsUjhhY1p1UXBjN1J0Rm1IbGhiK0VkSjF6S1pCcDUrVklJTEFRZUdFYU82WU5sOQo4UktoVkxKQWI5c0xLd1M1R3pFakZmVDU5VkRLZEdWNUV2dlAreUN0RTVuNXc5NFVqU3A4eTdSdjBmVlcyVVRCCjQ3ODZWTW56d2trRTc2TUdRdjVRLzBWT0tiT1kyQzY4eFlWUkVydDBMTER2TUM3VDVEMmpsRGtUclA1SHF2b2oKMFdzQ1NteW9nMTZYNllscUU1L3BBZ3hvb1ByaksrTncyYnZZamhFb0pueEwxRnBXVEZJSDd6dUdlOFZTOUtZMgpRanl0eXRvTEwrakQ3RUNRLzlVQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZFcVBubTlHcGpNMXZRY25OQytZNUtWN3JqVXRNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFCNjNjSmxBemMxdXYrOEQ3eFl6TS85Y2F2cllwanlyQXQzRXpBMmRUZ21oZzVHNVRvRAphZkZrUE5KQzhxak9KYWhodFdNQy93eisrM2tSV1lLUDNsVVdRVk5xUDR0dGlYa0Q2K3AvV0pkZk9NQzYrRzhLCjlkRFpNRUpCWFN4eGVEUHFoMmpEdm1TL0RsYUY1aHRqaWljSU5UU05VcUVBSHAzblZ5bTNCUTlOdlN3MEdVb0sKNEtpMEczQ2dqTVFmMkdsL1VRNXdHT2FVSFU5cFhjbGZ4Z0cwZWdJSzIvT21pNGN3bDU4UGZyWWtLeGlxYkcxUQpsUlN5aFBuUGdmVHdzY1BsQzJ0eXNZdXc3SVFTZkFxelI4alNDekVMVVhNUFc5SEJacEdUaEZ6SmFUSUlVTlUyClVHWTN4TUpLWHkwMmd1bFZDd1Bva0t1TGtNR0dvK0pnRThuZgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        server: https://127.0.0.1:44645
+    name: kind-lab-terraform-kubernetes
+    contexts:
+    - context:
+        cluster: kind-lab-terraform-kubernetes
+        user: kind-lab-terraform-kubernetes
+    name: kind-lab-terraform-kubernetes
+    current-context: kind-lab-terraform-kubernetes
+    kind: Config
+    preferences: {}
+    users:
+    - name: kind-lab-terraform-kubernetes
+    user:
+        client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJVENDQWdtZ0F3SUJBZ0lJTUpXRUxkaDJab1F3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TWpBMk1qY3dPRFUxTkROYUZ3MHlNekEyTWpjd09EVTFORFZhTURReApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sa3dGd1lEVlFRREV4QnJkV0psY201bGRHVnpMV0ZrCmJXbHVNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXFuVlVwYUJZQ3A0cnQ3Y2UKQ1kvY0tTRWNPV09jV2lmVjNBWGNtZVZDeUxva053RjdnUmVpeWNHSGpPNERuVERxd3RkWjBkQldhNktrNjByWQo2dms2MUpxdUZtNEhreDgxNEZ6cm9ua3J3bmdkWE91RnQrLzBXVExmM2ZhL0E1WkZ3cFdESG4vcjc0MURCUnE3CmtxQUlSL3ZpQm1qQk1US3c5L21hYnJmbytyVTBwb2JYNUJ6K0lkbWRxTGwvazJLR2swUmgvZTliVi82V3JLeGoKRWxlRVM4Zzluak1oOG1ocWRxcmsxaDFtcW96VDF2NktlbkxHNldQV2FmbFVnQkp2R3ZJV2ViTkxuVjhaeDh5ZApTYk1IdnhzdldETjNCTHpxM1lGY2I1bHE4UjhyZk04Q0d5SjZuR1E2YWFybW9LaEMyU0JqNUIwaldmOG5SNWtECmp4ZEhPUUlEQVFBQm8xWXdWREFPQmdOVkhROEJBZjhFQkFNQ0JhQXdFd1lEVlIwbEJBd3dDZ1lJS3dZQkJRVUgKQXdJd0RBWURWUjBUQVFIL0JBSXdBREFmQmdOVkhTTUVHREFXZ0JSS2o1NXZScVl6TmIwSEp6UXZtT1NsZTY0MQpMVEFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBdkJZL0lnSFdaMC9lelE0RE8zUVIraDVCYmJYWFFYbHRRaFA3Ck1VL0FISzZjMXl1MVdZUkQzcDNPc0VjS2tIK3p4dmdmcHJjNXpxRkU4aFZWVDJVWEIrU3VQZnJTcWQzbkxzcmcKdndmM0xsdmVLVzFsbjlNSnAzNzBnUDlLNjlpWjlaQ0pldzJFR2lGand2ZE4vMi9adnQyNzFHMDd4QXJLRVBpRQpXNGF6MXF2ZFc2V0RlanJpamYwZ0VUWXlnbFN2cVl5UndpVmN4a2xNOGlhZSswc3RXZUJ5bFBENTlkTkFRNlZTClBPd3J2VHY2a2lMRjMrR2l1ZGp3dUxNcXYrQnpOVHBBaWZrazlFc2hEWUdaM1RvbDVqaXRubzdPamR5TlNXWWcKQzA4eWVyZFlYdmYzMGNuaHEvbVZYSHEyaEM3eGZ6MW5FQm1EYjRVRUJhZlBoTTQ3aUE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBcW5WVXBhQllDcDRydDdjZUNZL2NLU0VjT1dPY1dpZlYzQVhjbWVWQ3lMb2tOd0Y3CmdSZWl5Y0dIak80RG5URHF3dGRaMGRCV2E2S2s2MHJZNnZrNjFKcXVGbTRIa3g4MTRGenJvbmtyd25nZFhPdUYKdCsvMFdUTGYzZmEvQTVaRndwV0RIbi9yNzQxREJScTdrcUFJUi92aUJtakJNVEt3OS9tYWJyZm8rclUwcG9iWAo1QnorSWRtZHFMbC9rMktHazBSaC9lOWJWLzZXckt4akVsZUVTOGc5bmpNaDhtaHFkcXJrMWgxbXFvelQxdjZLCmVuTEc2V1BXYWZsVWdCSnZHdklXZWJOTG5WOFp4OHlkU2JNSHZ4c3ZXRE4zQkx6cTNZRmNiNWxxOFI4cmZNOEMKR3lKNm5HUTZhYXJtb0toQzJTQmo1QjBqV2Y4blI1a0RqeGRIT1FJREFRQUJBb0lCQUQ1amtXYkpxRS9Da3JlOApRemMydTFzbWJrRW5EMHdFTm9kQWNmeTE1OXEySHBrdlpyZmFJYy84a0pOcGJsTXpXMG1UTHFIWHdqbkZIdDJyCjJIY3dYM0wvWm1aNVFUWjgvdWd1dW1RT081RURDNlE5NUFSdHhCNTl1Mmh2Ym54dW5QdmFZMUpmZWNpRkNKbXUKcmlhOWdpcHVxOHl5dkxzNEZZTzlqT09uVnBPajlENkZtclVoWkpqUk04NzZ0R0ZlVTBKODdCZlJvamNHdEtQUQpXNjZmdVNHdEEwTkZsbEhEbTR6Zi84cE5iS241R0Q4ZHRybGkrd25ObnIxZWE5QTlaU1BNdVlaSmI2YytwMnNjCkliMXl0SHlvNStUVmZnRXRLdW1xRzVXME1CeTIyZUhta3ViMnZSRzdvY0JWcHVrWG9nY1J1ZFhYaDlua25UNkoKZUdXRTJiRUNnWUVBMU95dzVDNlR4d3lBSlBqUVFZR2dlQ0NxQzdVUW56cHVac1I3MFJDS1RQSkhCRXM3WDhHVApzVy9odm8xdnYyUUg4VmpxK0FnQzNtSFB6MTkxTVdSSkFNdGZGTk5aUThjSGxCSG5nQmVTODY5T1pVZHJDazU0CllrcnpmbVBNWlhYc1lrZ01ndEdaVUtibnJsR3lkbVkwYzVrWUFMOVQrV2oxNWhUYUhLZ0Z0RlVDZ1lFQXpQRlMKeTd1anVucjJ5WXpqcXVmOVBUZGhLSmFHbEg0SVJ1NitIUnltTUk3RStTaUdhK2t5d1J4dkxIaC8wTXczSk8vWQpYTzh1QzByRk1JNll2bUsydFJhalgrQnhOamtmYm5mc3hJNFFUaUJwcXh1Slg2R1BzdFpRTmNFWW5jY3lnSXBBCmVoV0M3a3QvdTY2MExML0p3NkdKODZuMm52NFA3eVdXOGUxbnkxVUNnWUExWGVXd0syUnFuVjE0NXN2N3Z5dWoKTUR5dWxvRkdCM1VvV05MWHdaZUlWYWtyRUZnZlZmdFltN3d1OEhBenZqU25ieXZsWXN5bFJFcTdwU2RRYTl4SQpVTERTSFc3Z0tBQmtRbUNOb0ZyNnJOT3ZXc2tmV2krZUl6OElUS2NzUHZReVpmQ00wVS9tQVE5TWg3bDlKM3k2CkJJTVpuTnJGUm1OcmVZcDVhRHVWeVFLQmdFdUVYUUx2aUh4TmxTUmRnd0xWNnkya2UydXVVN2JoM2dEdE5pYWEKQ083NW5NRkcyb2xtNjZuVzVXeFlscGlFdDRrbnkrMHF3U2V1REkxQTdpMnhTQ3ZnUktFdW5lamlFWi91RnRPeQptWFdBWWcrSDNRM2RCWXRiaDBEWGYwK2NPQksvWHRUZG1scGVmWm5WM1ZSajgxL2Y1V3BnNVp4ZWQ5YWlYa1dWCk9scmxBb0dBWlhGRnNJTVhiU0wvTkFYRHVzVUF4WmlySXJ4V05EMmhvZlEyaCswQnhINVJKK082Yno0b3ppQ1gKT2NqVStldUNqcDdOWDJMYmM5ekNsTGlzbW1Xam1BeTJmWFhzb0pWdWowVXZMQWJnaEFlUlUyYkpMa0J3NzRqMgo5YjBVL1BUdWN2WVRyRVFlT2F1UzhhZmxwSUpmd1Y1UlZ4Y2FtelI4VE12MndDNkdQZ2M9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+    ```
+
+2. Con estos datos rellenaremos el fichero de variables *terraform.tfvars*, quedando de la siguiente manera:
+
+    ```shell
+    vim terraform.tfvars
+
+    # terraform.tfvars
+
+    host                   = "https://127.0.0.1:44645"
+    client_certificate     = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJVENDQWdtZ0F3SUJBZ0lJTUpXRUxkaDJab1F3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TWpBMk1qY3dPRFUxTkROYUZ3MHlNekEyTWpjd09EVTFORFZhTURReApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sa3dGd1lEVlFRREV4QnJkV0psY201bGRHVnpMV0ZrCmJXbHVNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXFuVlVwYUJZQ3A0cnQ3Y2UKQ1kvY0tTRWNPV09jV2lmVjNBWGNtZVZDeUxva053RjdnUmVpeWNHSGpPNERuVERxd3RkWjBkQldhNktrNjByWQo2dms2MUpxdUZtNEhreDgxNEZ6cm9ua3J3bmdkWE91RnQrLzBXVExmM2ZhL0E1WkZ3cFdESG4vcjc0MURCUnE3CmtxQUlSL3ZpQm1qQk1US3c5L21hYnJmbytyVTBwb2JYNUJ6K0lkbWRxTGwvazJLR2swUmgvZTliVi82V3JLeGoKRWxlRVM4Zzluak1oOG1ocWRxcmsxaDFtcW96VDF2NktlbkxHNldQV2FmbFVnQkp2R3ZJV2ViTkxuVjhaeDh5ZApTYk1IdnhzdldETjNCTHpxM1lGY2I1bHE4UjhyZk04Q0d5SjZuR1E2YWFybW9LaEMyU0JqNUIwaldmOG5SNWtECmp4ZEhPUUlEQVFBQm8xWXdWREFPQmdOVkhROEJBZjhFQkFNQ0JhQXdFd1lEVlIwbEJBd3dDZ1lJS3dZQkJRVUgKQXdJd0RBWURWUjBUQVFIL0JBSXdBREFmQmdOVkhTTUVHREFXZ0JSS2o1NXZScVl6TmIwSEp6UXZtT1NsZTY0MQpMVEFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBdkJZL0lnSFdaMC9lelE0RE8zUVIraDVCYmJYWFFYbHRRaFA3Ck1VL0FISzZjMXl1MVdZUkQzcDNPc0VjS2tIK3p4dmdmcHJjNXpxRkU4aFZWVDJVWEIrU3VQZnJTcWQzbkxzcmcKdndmM0xsdmVLVzFsbjlNSnAzNzBnUDlLNjlpWjlaQ0pldzJFR2lGand2ZE4vMi9adnQyNzFHMDd4QXJLRVBpRQpXNGF6MXF2ZFc2V0RlanJpamYwZ0VUWXlnbFN2cVl5UndpVmN4a2xNOGlhZSswc3RXZUJ5bFBENTlkTkFRNlZTClBPd3J2VHY2a2lMRjMrR2l1ZGp3dUxNcXYrQnpOVHBBaWZrazlFc2hEWUdaM1RvbDVqaXRubzdPamR5TlNXWWcKQzA4eWVyZFlYdmYzMGNuaHEvbVZYSHEyaEM3eGZ6MW5FQm1EYjRVRUJhZlBoTTQ3aUE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+    client_key             = "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBcW5WVXBhQllDcDRydDdjZUNZL2NLU0VjT1dPY1dpZlYzQVhjbWVWQ3lMb2tOd0Y3CmdSZWl5Y0dIak80RG5URHF3dGRaMGRCV2E2S2s2MHJZNnZrNjFKcXVGbTRIa3g4MTRGenJvbmtyd25nZFhPdUYKdCsvMFdUTGYzZmEvQTVaRndwV0RIbi9yNzQxREJScTdrcUFJUi92aUJtakJNVEt3OS9tYWJyZm8rclUwcG9iWAo1QnorSWRtZHFMbC9rMktHazBSaC9lOWJWLzZXckt4akVsZUVTOGc5bmpNaDhtaHFkcXJrMWgxbXFvelQxdjZLCmVuTEc2V1BXYWZsVWdCSnZHdklXZWJOTG5WOFp4OHlkU2JNSHZ4c3ZXRE4zQkx6cTNZRmNiNWxxOFI4cmZNOEMKR3lKNm5HUTZhYXJtb0toQzJTQmo1QjBqV2Y4blI1a0RqeGRIT1FJREFRQUJBb0lCQUQ1amtXYkpxRS9Da3JlOApRemMydTFzbWJrRW5EMHdFTm9kQWNmeTE1OXEySHBrdlpyZmFJYy84a0pOcGJsTXpXMG1UTHFIWHdqbkZIdDJyCjJIY3dYM0wvWm1aNVFUWjgvdWd1dW1RT081RURDNlE5NUFSdHhCNTl1Mmh2Ym54dW5QdmFZMUpmZWNpRkNKbXUKcmlhOWdpcHVxOHl5dkxzNEZZTzlqT09uVnBPajlENkZtclVoWkpqUk04NzZ0R0ZlVTBKODdCZlJvamNHdEtQUQpXNjZmdVNHdEEwTkZsbEhEbTR6Zi84cE5iS241R0Q4ZHRybGkrd25ObnIxZWE5QTlaU1BNdVlaSmI2YytwMnNjCkliMXl0SHlvNStUVmZnRXRLdW1xRzVXME1CeTIyZUhta3ViMnZSRzdvY0JWcHVrWG9nY1J1ZFhYaDlua25UNkoKZUdXRTJiRUNnWUVBMU95dzVDNlR4d3lBSlBqUVFZR2dlQ0NxQzdVUW56cHVac1I3MFJDS1RQSkhCRXM3WDhHVApzVy9odm8xdnYyUUg4VmpxK0FnQzNtSFB6MTkxTVdSSkFNdGZGTk5aUThjSGxCSG5nQmVTODY5T1pVZHJDazU0CllrcnpmbVBNWlhYc1lrZ01ndEdaVUtibnJsR3lkbVkwYzVrWUFMOVQrV2oxNWhUYUhLZ0Z0RlVDZ1lFQXpQRlMKeTd1anVucjJ5WXpqcXVmOVBUZGhLSmFHbEg0SVJ1NitIUnltTUk3RStTaUdhK2t5d1J4dkxIaC8wTXczSk8vWQpYTzh1QzByRk1JNll2bUsydFJhalgrQnhOamtmYm5mc3hJNFFUaUJwcXh1Slg2R1BzdFpRTmNFWW5jY3lnSXBBCmVoV0M3a3QvdTY2MExML0p3NkdKODZuMm52NFA3eVdXOGUxbnkxVUNnWUExWGVXd0syUnFuVjE0NXN2N3Z5dWoKTUR5dWxvRkdCM1VvV05MWHdaZUlWYWtyRUZnZlZmdFltN3d1OEhBenZqU25ieXZsWXN5bFJFcTdwU2RRYTl4SQpVTERTSFc3Z0tBQmtRbUNOb0ZyNnJOT3ZXc2tmV2krZUl6OElUS2NzUHZReVpmQ00wVS9tQVE5TWg3bDlKM3k2CkJJTVpuTnJGUm1OcmVZcDVhRHVWeVFLQmdFdUVYUUx2aUh4TmxTUmRnd0xWNnkya2UydXVVN2JoM2dEdE5pYWEKQ083NW5NRkcyb2xtNjZuVzVXeFlscGlFdDRrbnkrMHF3U2V1REkxQTdpMnhTQ3ZnUktFdW5lamlFWi91RnRPeQptWFdBWWcrSDNRM2RCWXRiaDBEWGYwK2NPQksvWHRUZG1scGVmWm5WM1ZSajgxL2Y1V3BnNVp4ZWQ5YWlYa1dWCk9scmxBb0dBWlhGRnNJTVhiU0wvTkFYRHVzVUF4WmlySXJ4V05EMmhvZlEyaCswQnhINVJKK082Yno0b3ppQ1gKT2NqVStldUNqcDdOWDJMYmM5ekNsTGlzbW1Xam1BeTJmWFhzb0pWdWowVXZMQWJnaEFlUlUyYkpMa0J3NzRqMgo5YjBVL1BUdWN2WVRyRVFlT2F1UzhhZmxwSUpmd1Y1UlZ4Y2FtelI4VE12MndDNkdQZ2M9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg=="
+    cluster_ca_certificate = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1EWXlOekE0TlRVME0xb1hEVE15TURZeU5EQTROVFUwTTFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTW1RCmhQck5XcmtJSVdTMmhmTE1kWStIbU5mUGpTdjhFU0xIeHgzVzRtU1VKcFJpRFgyL0VMTkQ3YTQ0NWF2QzhWZVMKaTBQODV0ZEV5UEZhUkdrQndsUjhhY1p1UXBjN1J0Rm1IbGhiK0VkSjF6S1pCcDUrVklJTEFRZUdFYU82WU5sOQo4UktoVkxKQWI5c0xLd1M1R3pFakZmVDU5VkRLZEdWNUV2dlAreUN0RTVuNXc5NFVqU3A4eTdSdjBmVlcyVVRCCjQ3ODZWTW56d2trRTc2TUdRdjVRLzBWT0tiT1kyQzY4eFlWUkVydDBMTER2TUM3VDVEMmpsRGtUclA1SHF2b2oKMFdzQ1NteW9nMTZYNllscUU1L3BBZ3hvb1ByaksrTncyYnZZamhFb0pueEwxRnBXVEZJSDd6dUdlOFZTOUtZMgpRanl0eXRvTEwrakQ3RUNRLzlVQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZFcVBubTlHcGpNMXZRY25OQytZNUtWN3JqVXRNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFCNjNjSmxBemMxdXYrOEQ3eFl6TS85Y2F2cllwanlyQXQzRXpBMmRUZ21oZzVHNVRvRAphZkZrUE5KQzhxak9KYWhodFdNQy93eisrM2tSV1lLUDNsVVdRVk5xUDR0dGlYa0Q2K3AvV0pkZk9NQzYrRzhLCjlkRFpNRUpCWFN4eGVEUHFoMmpEdm1TL0RsYUY1aHRqaWljSU5UU05VcUVBSHAzblZ5bTNCUTlOdlN3MEdVb0sKNEtpMEczQ2dqTVFmMkdsL1VRNXdHT2FVSFU5cFhjbGZ4Z0cwZWdJSzIvT21pNGN3bDU4UGZyWWtLeGlxYkcxUQpsUlN5aFBuUGdmVHdzY1BsQzJ0eXNZdXc3SVFTZkFxelI4alNDekVMVVhNUFc5SEJacEdUaEZ6SmFUSUlVTlUyClVHWTN4TUpLWHkwMmd1bFZDd1Bva0t1TGtNR0dvK0pnRThuZgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+    ```
+
+3. Si revisamos el fichero *kubernetes.tf* vemos que extrae las variables del fichero *terraform.tfvars*
+
+    ```shell
+     vim kubernetes.tf
+
+    terraform {
+        required_providers {
+            kubernetes = {
+                source = "hashicorp/kubernetes"
+            }
+        }
+    }
+
+    variable "host" {
+        type = string
+    }
+
+    variable "client_certificate" {
+        type = string
+    }
+
+    variable "client_key" {
+        type = string
+    }
+
+    variable "cluster_ca_certificate" {
+        type = string
+    }
+
+    provider "kubernetes" {
+        host = var.host
+
+    client_certificate     = base64decode(var.client_certificate)
+    client_key             = base64decode(var.client_key)
+    cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
+    }
+    ```
+
+### Implementación de recursos en el clúster de Kubernetes
+
+1. Iniciamos directorio de trabajo
+
+    ```shell
+    terraform init
+    ```
+
+2. Descarga el fichero de configuración y revisa el contenido
+
+    ```shell
+    wget https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/lab_kubernetes_resources.tf
+    vim 
+    resource "kubernetes_deployment" "nginx" {
+        metadata {
+            name = "long-live-the-bat"
+            labels = {
+                App = "longlivethebat"
+            
+            }
+        }
+        spec {
+            replicas = 2
+            selector {
+                match_labels = {
+                    App = "longlivethebat"
+                    }
+                }
+            template {
+                metadata {
+                    labels = {
+                        App = "longlivethebat"
+                    }
+                }
+                spec {
+                    container {
+                    image = "nginx:1.7.8"
+                    name  = "batman"
+
+                    port {
+                        container_port = 80
+                    }
+
+                    resources {
+                        limits = {
+                            cpu    = "0.5"
+                            memory = "512Mi"
+                        }
+                        
+                        requests = {
+                            cpu    = "250m"
+                            memory = "50Mi"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ```
+3. Iniciamos plan de terraform y aplicamos conficuración
+
+    ```shell
+    terrform plan
+    terraform apply
+    kubernetes_deployment.nginx: Creating...
+    kubernetes_deployment.nginx: Still creating... [10s elapsed]
+    kubernetes_deployment.nginx: Creation complete after 16s [id=default/long-live-the-bat]
+
+    Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+    
+    # Para ver los detalles de la implementación
+
+    kubectl get deployments
+    NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+    long-live-the-bat   2/2     2            2           70s
+    ``` 
+    Vemos que hay dos nodos en funcionamiento en el despliegue *long-live-the-bat*
 
 ***
+
+
+
+
+
+
+
+
+
 
 
