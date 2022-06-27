@@ -1472,7 +1472,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 
 1. Descargamos el fichero del repo proporcionado y lo revisamos:
 
-    ´´´shell
+    ```shell
     wget <https://raw.githubusercontent.com/linuxacademy/content-terraform-2021/main/outputs_azure.tf>
     vim outputs.tf
 
