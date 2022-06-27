@@ -1370,7 +1370,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     unzip lab-azure-outputs.zip
     ```
 
-3. Una vez dentro del directorio del repo descargado revisamos el fichero main.tf y rellenamos los campos *Resource group name*
+ 3. Una vez dentro del directorio del repo descargado revisamos el fichero main.tf y rellenamos los campos *Resource group name*
 
     ```shell
     # Configure the Azure provider
@@ -1519,6 +1519,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
             hostPort: 30201
             listenAddress: "0.0.0.0"
     ```
+
     2. kubernetes.tf
 
     ```shell
@@ -1738,6 +1739,7 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
         }
     }
     ```
+
 3. Iniciamos plan de terraform y aplicamos conficuración
 
     ```shell
@@ -1754,18 +1756,8 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
     kubectl get deployments
     NAME                READY   UP-TO-DATE   AVAILABLE   AGE
     long-live-the-bat   2/2     2            2           70s
-    ``` 
-    Vemos que hay dos nodos en funcionamiento en el despliegue *long-live-the-bat*
+    ```
+
+Vemos que hay dos nodos en funcionamiento en el despliegue *long-live-the-bat*
 
 ***
-
-
-
-
-
-
-
-
-
-
-
