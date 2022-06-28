@@ -1,4 +1,4 @@
-# Usar Terraform para crear una implementación de EKS
+# Laboratorio 11 - Usar Terraform para crear una implementación de EKS
 
 <p align="center">
   <img src="/images/eks-deployment-terraform.png" />
