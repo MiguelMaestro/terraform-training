@@ -1761,3 +1761,6 @@ Luego queremos elegir Mostrar configuración avanzada. Elija la misma región de
 Vemos que hay dos nodos en funcionamiento en el despliegue *long-live-the-bat*
 
 ***
+
+
+
