@@ -1762,5 +1762,8 @@ Vemos que hay dos nodos en funcionamiento en el despliegue *long-live-the-bat*
 
 ***
 
+# Whats next?
 
-
+<p align="center">
+  <img src="/images/what-next.png" />
+</p>
